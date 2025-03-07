@@ -27,12 +27,12 @@ public class UserDaoImp implements UsersDao {
    }
 
    @Override
-   public void update(int id, User user) {
+   public void update(Long id, User user) {
       entityManager.merge(user);
    }
 
    @Override
-   public void delete(int id) {
+   public void delete(Long id) {
       User user = entityManager.find(User.class, id);
       if (user != null) {
          entityManager.remove(user);
@@ -40,7 +40,14 @@ public class UserDaoImp implements UsersDao {
    }
 
    @Override
-   public User show(int id) {
+   public User show(Long id) {
       return entityManager.find(User.class, id);
+   }
+
+   @Override
+   public User findByUsername(String username) {
+      TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class);
+      query.setParameter("username", username);
+      return query.getResultStream().findFirst().orElse(null);
    }
 }

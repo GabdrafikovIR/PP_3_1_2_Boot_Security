@@ -12,10 +12,12 @@ public interface UsersDao {
 
     List<User> index();
 
-    void update(int id, User user);
+    void update(Long id, User user);
 
-    void delete(int id);
+    void delete(Long id);
 
-    User show(int id);
+    User show(Long id);
+
+    User findByUsername(String username);
 
 }

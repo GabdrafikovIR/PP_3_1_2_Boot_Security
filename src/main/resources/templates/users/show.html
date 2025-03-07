@@ -1,19 +1,41 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"><head>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<html lang="en">
+<head>
     <meta charset="UTF-8">
-    <title>User</title>
+    <title></title>
 </head>
 <body>
-
-<a th:text="${user.getId()}">value</a>
-<a th:text="${user.getName()}">value</a>
-<a th:text="${user.getLastName()}">value</a>
-
-<a th:href="@{{id}/edit(id=${user.getId()})}">Edit</a>
-
-<form th:method="DELETE" th:action="@{/users/{id}(id=${user.getId()})}">
-    <input type="submit" value="Delete"/>
-</form>
-
+<div>
+    <div sec:authorize="isAuthenticated()">
+        <h3><span sec:authentication="name"></span></h3>
+        <h4><a href="/logout">Выйти</a></h4>
+    </div>
+    <table border="1">
+        <tr>
+            <th>User_id</th>
+            <th>Username</th>
+            <th>Age</th>
+            <th sec:authorize="hasRole('ROLE_ADMIN')">Role</th>
+            <th>Password</th>
+        </tr>
+        <tr th:each="user : ${user}">
+            <td th:text="${user.getId()}">Id</td>
+            <td th:text="${user.getUsername()}">User</td>
+            <td sec:authorize="hasRole('ROLE_ADMIN')">
+                <select class="form-control" id="dropDownList">
+                    <option th:each="role : ${user.getRoles()}" th:text="${role.getName()}"></option>
+                </select>
+            </td>
+            <td th:type="password" th:text="${user.getPassword()}">Password</td>
+        </tr>
+    </table>
+    <br/>
+    <hr/>
+    <a href="/">Главная</a>
+    <br/>
+</div>
 </body>
 </html>

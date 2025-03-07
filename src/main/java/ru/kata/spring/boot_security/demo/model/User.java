@@ -13,7 +13,7 @@ import java.util.Set;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(name = "username", unique = true, nullable = false)
     private String username;
@@ -29,19 +29,40 @@ public class User implements UserDetails {
     )
     private Set<Role> roles;
 
-    public User() {
-    }
+    @Transient
+    private boolean admin;
+
+    @Transient
+    private boolean user;
+
+    public User() {}
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
     }
 
-    public int getId() {
+    public boolean getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
+    public boolean getUser() {
+        return user;
+    }
+
+    public void setUser(boolean user) {
+        this.user = user;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -71,6 +92,16 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
+    public void checkRole() {
+        for(Role role : roles) {
+            if (role.getName().equals("ROLE_ADMIN")) {
+                admin = true;
+            } else if (role.getName().equals("ROLE_USER")) {
+                user = true;
+            }
+        }
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
@@ -94,6 +125,26 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (id != user.id) return false;
+        if (!username.equals(user.username)) return false;
+        return password.equals(user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = 31 * result + username.hashCode();
+        result = 31 * result + password.hashCode();
+        return result;
     }
 
     @Override
