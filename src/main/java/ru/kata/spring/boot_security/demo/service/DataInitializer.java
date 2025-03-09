@@ -23,28 +23,23 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // Проверяем, есть ли уже роли в базе данных
         if (roleService.findAll().isEmpty()) {
-            // Создаем роли, если их нет
             Role adminRole = new Role("ROLE_ADMIN");
             Role userRole = new Role("ROLE_USER");
             roleService.save(adminRole);
             roleService.save(userRole);
         }
 
-        // Проверяем, есть ли уже пользователи в базе данных
         if (usersService.index().isEmpty()) {
-            // Создаем начального пользователя (администратора)
             User admin = new User();
             admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin")); // Шифруем пароль
+            admin.setPassword("admin");
             admin.setRoles(Collections.singleton(roleService.findByName("ROLE_ADMIN"))); // Преобразуем List в Set
             usersService.save(admin);
 
-            // Создаем обычного пользователя (опционально)
             User user = new User();
             user.setUsername("user");
-            user.setPassword(passwordEncoder.encode("user")); // Шифруем пароль
+            user.setPassword("user");
             user.setRoles(Collections.singleton(roleService.findByName("ROLE_USER"))); // Назначаем роль пользователя
             usersService.save(user);
         }
