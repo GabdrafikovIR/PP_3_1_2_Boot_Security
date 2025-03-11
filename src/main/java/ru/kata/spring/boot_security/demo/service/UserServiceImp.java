@@ -12,7 +12,6 @@ import java.util.Optional;
 
 
 @Service
-@Transactional(readOnly = true)
 public class UserServiceImp implements UserService {
    private final UserRepository userRepository;
    private final PasswordEncoder passwordEncoder;
