@@ -4,44 +4,60 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.entity.Role;
+import ru.kata.spring.boot_security.demo.entity.User;
 
-import java.util.Collections;
+import java.util.Set;
+
+
 @Component
 public class DataInitializer implements ApplicationRunner {
 
-    private final UsersService usersService;
-    private final RoleServiceImp roleService;
+    private final UserService userService;
+    private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(UsersService usersService, RoleServiceImp roleServiceImp, PasswordEncoder passwordEncoder) {
-        this.usersService = usersService;
-        this.roleService = roleServiceImp;
+    public DataInitializer(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
     }
 
+
+
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-        if (roleService.findAll().isEmpty()) {
-            Role adminRole = new Role("ROLE_ADMIN");
-            Role userRole = new Role("ROLE_USER");
+    public void run(ApplicationArguments args) {
+        if (roleService.getRoles().isEmpty()) {
+            Role adminRole = new Role();
+            adminRole.setRoles("ROLE_ADMIN");
+            Role userRole = new Role();
+            userRole.setRoles("ROLE_USER");
             roleService.save(adminRole);
             roleService.save(userRole);
         }
 
-        if (usersService.index().isEmpty()) {
+        if (userService.findAll().isEmpty()) {
             User admin = new User();
+            admin.setName("admin");
             admin.setUsername("admin");
-            admin.setPassword("admin");
-            admin.setRoles(Collections.singleton(roleService.findByName("ROLE_ADMIN"))); // Преобразуем List в Set
-            usersService.save(admin);
+            admin.setPassword(passwordEncoder.encode("admin"));
+            admin.setRoles(Set.of(
+                    roleService.findByName("ROLE_ADMIN")
+                            .orElseThrow(() -> new RuntimeException("Роль ROLE_ADMIN не найдена")),
+                    roleService.findByName("ROLE_USER")
+                            .orElseThrow(() -> new RuntimeException("Роль ROLE_USER не найдена"))
+            ));
+            userService.saveUser(admin);
 
             User user = new User();
+            user.setName("user");
             user.setUsername("user");
-            user.setPassword("user");
-            user.setRoles(Collections.singleton(roleService.findByName("ROLE_USER"))); // Назначаем роль пользователя
-            usersService.save(user);
+            user.setPassword(passwordEncoder.encode("user"));
+            user.setRoles(Set.of(
+                    roleService.findByName("ROLE_USER")
+                            .orElseThrow(() -> new RuntimeException(("Роль ROLE_USER не найдена")))
+            ));
+            userService.saveUser(user);
         }
     }
 }

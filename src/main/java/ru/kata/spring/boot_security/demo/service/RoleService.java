@@ -1,15 +1,14 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.model.Role;
+import ru.kata.spring.boot_security.demo.entity.Role;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public interface RoleService {
-    Role findByName(String roleUser);
+    Set<Role> getRoles();
 
-    List<Role> findAll();
+    Optional<Role> findByName(String roleUser);
 
-    void save(Role role);
+    void save(Role roles);
 }
